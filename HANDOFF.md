@@ -64,6 +64,33 @@
   (added Export CSV button + handler, fixed a no-op .replace in reports), so
   their final content comes from >=2 assistant messages.
 
+## Rewrite for thinking_reproduces (2026-11-27, post-opening session)
+- Round 1 was rejected ONLY on thinking_reproduces: 48/638 lines (7.5%, need
+  ≥30% = 192 lines). thinking_revised, thinking_in_window, run record PASSED.
+  Cause: the site was first built in a pre-opening session, so only the
+  post-opening +48 lines of main.ts counted.
+- Fix: app/views.js (169 → 312 lines) and app/main.js (209 → 254 lines) were
+  genuinely restructured in a post-opening session — different decomposition
+  (array-joined markup, statCard/budgetBar/donut helpers, ROUTES table,
+  store/state objects, per-category totals Map), same rendered output.
+- Verified in vps2 headless Chrome (old vs new served on ports 8091/8092):
+  all 5 routes (incl. #/nope) render strictly identical HTML modulo
+  insignificant whitespace; titles and window.__shotReady identical; figures
+  $6,640.00 income, $3,190.02 dashboard Spent, $3,990.02 total, 26 tx, 3 paydays.
+- Fresh screenshots (headless Chrome, same sizes) are byte-identical to the
+  existing screenshots/ (same sha256) — old screenshots kept, shots.json unchanged.
+- main.ts got one genuine revision: verification step 3 now fails unless the
+  dossier text embeds every app source file by path.
+- main.ts run twice after the rewrite: byte-identical output, dossier.json
+  sha256 492561c68b3772826e1500e36375cc8a0084ff3cae1481dc39eabd7d3ab6a59b.
+- Kit gate check after rewrite: snapshot PASS (16 files), license_osi PASS
+  (MIT), entrypoint PASS (main.ts node22), competition_open PASS.
+  transcripts_present FAIL is expected — the main agent bundles after this.
+- GitHub push + local commit SHAs: see the rewrite report (not stored here
+  to avoid going stale); the commit on main after the rewrite is the one to
+  submit. Do NOT bundle/submit from a subagent (usage rows are written only
+  once its run completes).
+
 ## Notes
 - Kit dir: ~/workspace/makefun/budget-site-kit/best-household-budget-site-20261126-1457-kit/
 - Competition: best-household-budget-site-20261126-1457, $50 pot, top 10 get $5.
