@@ -86,6 +86,12 @@ for (const img of dossier.images) {
   if (!existsSync(file)) fail(`dossier names screenshot ${img.name}, which is not in the output`);
   if (sha256(readFileSync(file)) !== img.sha256) fail(`dossier hash for ${img.name} does not match the file on disk`);
 }
+// 3. The dossier's text must embed every app source file by path, so a
+// truncated or stale text block that silently dropped a file fails the run
+// instead of handing in an entry whose sources the judge cannot see.
+for (const rel of listFiles(join(out, 'app'))) {
+  if (!dossier.text.includes('app/' + rel)) fail(`dossier text does not embed app/${rel}`);
+}
 const appBytes = listFiles(join(out, 'app')).reduce((s, f) => s + statSync(join(out, 'app', f)).size, 0);
 console.log(
   `verified: ${listFiles(join(out, 'app')).length} app files (${appBytes} bytes), ${dossier.images.length} screenshots, dossier.json ${statSync(dossierPath).size} bytes — all byte-identical to source`,
